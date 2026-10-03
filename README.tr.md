@@ -45,7 +45,7 @@ python evren_bridge.py
 
 Ajanında base URL'si `http://127.0.0.1:8787/v1` olan OpenAI uyumlu bir sağlayıcı ekle; API anahtarına ne yazdığın önemli değil, köprü gerçek anahtarını kendisi gönderir.
 
-Henüz anahtarın yok mu? `python docs/demo.py` paneli uydurma ajanlarla gösterir.
+Henüz anahtarın yok mu? [EVREN API anahtarları](https://evren.ssyz.org.tr/api-keys) sayfasından alabilirsin.
 
 ## İstemciler
 

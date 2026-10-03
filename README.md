@@ -45,7 +45,7 @@ python evren_bridge.py
 
 In your agent, add an OpenAI-compatible provider with base URL `http://127.0.0.1:8787/v1` and any API key; the bridge sends your real one.
 
-No key yet? `python docs/demo.py` shows the panel with made-up agents.
+No key yet? Get one from [EVREN API keys](https://evren.ssyz.org.tr/api-keys).
 
 ## Clients
 
