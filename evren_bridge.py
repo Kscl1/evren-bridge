@@ -31,6 +31,7 @@ Run:  python evren_bridge.py [--upstream URL] [--profile evren|none] [--active-c
       (listens on 127.0.0.1:8787; without --upstream the EVREN profile and its URL)
 """
 import argparse
+import atexit
 import collections
 import datetime
 import itertools
@@ -714,6 +715,21 @@ def make_server(keys, upstream, port=PORT, active_cap=20, profile=None):
     return server
 
 
+def name_window(title="evren-bridge"):
+    """Show the bridge's name in the terminal's title bar or tab instead of the shell's, and give the old one back."""
+    if os.name == "nt":
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        old = ctypes.create_unicode_buffer(1024)
+        if kernel32.GetConsoleTitleW(old, len(old)):
+            kernel32.SetConsoleTitleW(title)
+            atexit.register(kernel32.SetConsoleTitleW, old.value)
+    elif sys.stdout.isatty():
+        sys.stdout.write(f"[22;0t]0;{title}")  # save the title, then set ours
+        sys.stdout.flush()
+        atexit.register(lambda: (sys.stdout.write("[23;0t"), sys.stdout.flush()))
+
+
 def main():
     global ECHO
     parser = argparse.ArgumentParser(description="Local Chat Completions proxy that keeps each session on one API key.")
@@ -735,6 +751,7 @@ def main():
     except ValueError as e:
         sys.exit(f"evren-bridge: {e}")
     keys = load_keys(KEYS_FILE)
+    name_window()
     server = make_server(keys, upstream, active_cap=args.active_cap, profile=profile)
     if args.no_panel:
         print(f"evren-bridge on http://127.0.0.1:{server.server_address[1]}/v1 -> {upstream} "
