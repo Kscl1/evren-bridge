@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">evren-bridge</h1>
 <p align="center">
-  Keep each coding-agent session on one API key, and watch every agent live in your terminal.
+  A local bridge for EVREN: watches every coding agent live and smooths over EVREN's limits and errors.
 </p>
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-65d6ce?style=flat-square" alt="MIT license"></a>
@@ -13,15 +13,17 @@
   English · <a href="README.tr.md">Türkçe</a>
 </p>
 
-Prompt caches are often kept per account: when an agent's requests move to another key, its cached input is lost. evren-bridge keeps each agent session on one key and shows what every agent is doing, how fast it answers and how much of its input came from cache.
+evren-bridge runs on your machine between your coding agents and the LLM service of [EVREN](https://evren.ssyz.org.tr), the Turkish Defence Industry AI Platform. Its terminal panel shows what every agent is doing, how fast it answers, how much of its input came from cache and how much of the day's quota is left.
 
-Built for [EVREN](https://evren.ssyz.org.tr), it works with any OpenAI Chat Completions provider. Not an official EVREN project.
+It also smooths over EVREN's rough edges: a daily-limit refusal comes back with a clear retry time, and errors EVREN hides inside a stream become a normal retry.
+
+It works with other OpenAI Chat Completions providers too. Not an official EVREN project.
 
 ![evren-bridge in Windows Terminal](docs/screens/terminal.png)
 
 ## Quick start
 
-Requires Python 3.10+ on Windows, macOS or Linux (use `python3` where `python` is not found).
+You need Python 3.10 or newer (`python3` on macOS and Linux if `python` is missing).
 
 ```sh
 git clone https://github.com/Kscl1/evren-bridge
@@ -29,25 +31,25 @@ cd evren-bridge
 python -m pip install -r requirements.txt
 ```
 
-Create `~/.evren/keys.txt` (Windows: `%USERPROFILE%\.evren\keys.txt`), including its parent directory, with your API key:
+Put your EVREN API key in `~/.evren/keys.txt` (on Windows `%USERPROFILE%\.evren\keys.txt`), with a label in front:
 
 ```text
 main=sk-...
 ```
 
+Start the bridge and leave it running; the panel opens in the same terminal:
+
 ```sh
 python evren_bridge.py
 ```
 
-This starts the bridge for EVREN. For another provider, add `--upstream URL` with its root URL, without `/v1`.
+In your agent, add an OpenAI-compatible provider with base URL `http://127.0.0.1:8787/v1` and any API key; the bridge sends your real one.
 
-Set your agent's OpenAI-compatible base URL to `http://127.0.0.1:8787/v1` and its API key to `unused`; the bridge substitutes your key.
-
-Try the panel without an API key: `python docs/demo.py`.
+No key yet? `python docs/demo.py` shows the panel with made-up agents.
 
 ## Clients
 
-Use each client's Chat Completions / OpenAI-compatible provider with the base URL above.
+Any agent that speaks OpenAI Chat Completions works. To stay on one key, it must also send a session id. These do:
 
 | Client | Session pinning setup |
 |---|---|
@@ -57,7 +59,7 @@ Use each client's Chat Completions / OpenAI-compatible provider with the base UR
 | <img src="https://github.com/charmbracelet.png?size=40" width="20" height="20" alt=""> [Crush](https://github.com/charmbracelet/crush) | Not tested yet |
 | <img src="https://github.com/aaif-goose.png?size=40" width="20" height="20" alt=""> [Goose](https://github.com/aaif-goose/goose) | Not tested yet |
 
-<img src="https://github.com/cline.png?size=40" width="20" height="20" alt=""> [Cline](https://github.com/cline/cline), <img src="https://github.com/RooCodeInc.png?size=40" width="20" height="20" alt=""> [Roo Code](https://github.com/RooCodeInc/Roo-Code), <img src="https://github.com/continuedev.png?size=40" width="20" height="20" alt=""> [Continue](https://github.com/continuedev/continue), <img src="https://github.com/Aider-AI.png?size=40" width="20" height="20" alt=""> [Aider](https://github.com/Aider-AI/aider), <img src="https://github.com/zed-industries.png?size=40" width="20" height="20" alt=""> [Zed](https://github.com/zed-industries/zed) and <img src="https://github.com/QwenLM.png?size=40" width="20" height="20" alt=""> [Qwen Code](https://github.com/QwenLM/qwen-code) work, but send no session id, so they are not kept on one key.
+<img src="https://github.com/cline.png?size=40" width="20" height="20" alt=""> [Cline](https://github.com/cline/cline), <img src="https://github.com/RooCodeInc.png?size=40" width="20" height="20" alt=""> [Roo Code](https://github.com/RooCodeInc/Roo-Code), <img src="https://github.com/continuedev.png?size=40" width="20" height="20" alt=""> [Continue](https://github.com/continuedev/continue), <img src="https://github.com/Aider-AI.png?size=40" width="20" height="20" alt=""> [Aider](https://github.com/Aider-AI/aider), <img src="https://github.com/zed-industries.png?size=40" width="20" height="20" alt=""> [Zed](https://github.com/zed-industries/zed) and <img src="https://github.com/QwenLM.png?size=40" width="20" height="20" alt=""> [Qwen Code](https://github.com/QwenLM/qwen-code) work too, but send no session id, so they are not kept on one key.
 
 <details>
 <summary>Pi configuration</summary>
@@ -85,7 +87,7 @@ pi --provider evren-bridge --model glm-5.3
 
 </details>
 
-Custom clients can send `X-Session-Affinity`, `X-Session-Id` or `Agent-Session-Id` (first non-empty wins). Codex CLI and Claude Code speak other APIs and are not supported.
+Other clients can send `X-Session-Affinity`, `X-Session-Id` or `Agent-Session-Id`. Codex CLI and Claude Code speak other APIs and do not work.
 
 ## Configuration
 
@@ -99,27 +101,26 @@ Custom clients can send `X-Session-Affinity`, `X-Session-Id` or `Agent-Session-I
 | `EVREN_KEYS_FILE` | `~/.evren/keys.txt` | Keys file |
 | `EVREN_BRIDGE_PORT` | `8787` | Local port |
 
-`GET /bridge/quota` returns key labels and routing state, plus quota data when a profile supplies it.
+`curl http://127.0.0.1:8787/bridge/quota` shows each key's state and EVREN quota as JSON. The key itself never appears.
 
 ## How it works
 
-- Sessions are **active** during requests and tool execution (up to 10 minutes per tool call); an ended turn is **idle**.
-- For multiple keys, add one `label=key` per line for the same upstream. New sessions use the first available key with fewer than 20 active sessions (`--active-cap`), otherwise the available key with the fewest. Idle sessions do not count.
-- Session assignments stay in memory for 60 minutes after their last activity. Returning sessions keep their key, even above the cap, unless it is parked. Load never moves a session; the cap is not a concurrency limit.
-- Without a provider profile, upstream response bodies and error statuses pass through unchanged.
+- An agent is **active** while it waits for an answer or runs a tool it asked for (up to 10 minutes), and **idle** once its turn ends.
+- Each agent stays on the key it started on, so EVREN's prompt cache holds for the whole conversation. The bridge remembers that key for 60 minutes; an agent that comes back within that time returns to it.
+- A busy key never pushes an agent elsewhere: EVREN's per-minute limit reaches the agent on its own key.
+- Without the EVREN profile, answers and errors pass through untouched.
 
 ## EVREN profile
 
-Enabled by default unless you override the upstream; use `--profile evren` to enable it explicitly.
+On by default. `--upstream` turns it off unless you also pass `--profile evren`.
 
-| Condition | Behavior |
+| EVREN sends | evren-bridge |
 |---|---|
-| Per-minute 429 | Pass through; add `Retry-After: 60` if missing |
-| Daily-limit 429 | Park the key until reset; retry on another available key |
-| All keys parked | Return 429 with `Retry-After` until the earliest reset |
-| Masked error in the first stream data chunk | Return 503 for the client to retry |
+| Per-minute limit (429) | Passes it on, with `Retry-After: 60` if EVREN gave none |
+| Daily limit (429) | Sets the key aside until its reset |
+| An error hidden in a stream that looks successful | Returns 503, so the agent retries |
 
-The profile adds per-minute, 5-minute and daily quota metrics to the panel.
+The panel then also shows per-minute, 5-minute and daily quota, read from EVREN's own counters.
 
 ## Panel
 
@@ -146,14 +147,17 @@ The profile adds per-minute, 5-minute and daily quota metrics to the panel.
 
 ## Privacy
 
-The bridge binds only to `127.0.0.1`. Any local program can use it, so run it on a trusted machine.
-`logs/bridge.log` records request metadata, key labels and the last eight characters of session IDs, never API keys, message content or tool arguments. Statistics are loaded from this log; session assignments are lost on restart. Cache hits depend on the provider.
+- Listens on `127.0.0.1` only. Any program on your machine can reach it, and through it your key.
+- `logs/bridge.log` keeps, per request: time, key label, path, model, status, token counts, timings and the end of the session id. No keys, no messages, no tool arguments.
+- Which agent is on which key lives in memory; a restart starts fresh.
 
 ## Development
 
 ```sh
 python -m unittest
 ```
+
+The tests run against local fake servers, never the network.
 
 ## License
 

@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">evren-bridge</h1>
 <p align="center">
-  Her kodlama ajanının oturumunu aynı API anahtarında tutun, tüm ajanları terminalinizden canlı izleyin.
+  EVREN için yerel bir köprü: bütün kodlama ajanlarını canlı izler, EVREN'in limit ve hatalarını yumuşatır.
 </p>
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-65d6ce?style=flat-square" alt="MIT lisansı"></a>
@@ -13,15 +13,17 @@
   <a href="README.md">English</a> · Türkçe
 </p>
 
-Prompt cache çoğunlukla hesap başına tutulur: bir ajanın istekleri başka bir anahtara geçerse önbellekteki girdisi kaybolur. evren-bridge her ajanın oturumunu aynı anahtarda tutar; her ajanın ne yaptığını, ne hızda yanıt verdiğini ve girdisinin ne kadarının önbellekten geldiğini gösterir.
+evren-bridge, bilgisayarında kodlama ajanlarınla [EVREN](https://evren.ssyz.org.tr)'in, yani Türk Savunma Sanayii Yapay Zeka Platformu'nun LLM servisi arasında çalışır. Terminaldeki paneli her ajanın ne yaptığını, ne hızda yanıt verdiğini, girdisinin ne kadarının önbellekten geldiğini ve günlük kotadan ne kaldığını gösterir.
 
-[EVREN](https://evren.ssyz.org.tr) için geliştirildi; OpenAI Chat Completions sunan her sağlayıcıyla çalışır. EVREN'in resmî bir projesi değildir.
+EVREN'in pürüzlerini de düzeltir: günlük limite takılan istek net bir bekleme süresiyle döner, EVREN'in akış içinde gizlediği hatalar normal bir yeniden denemeye dönüşür.
+
+Başka OpenAI Chat Completions sağlayıcılarıyla da çalışır. EVREN'in resmî bir projesi değildir.
 
 ![Windows Terminal'de evren-bridge](docs/screens/terminal.png)
 
 ## Hızlı başlangıç
 
-Windows, macOS veya Linux'ta Python 3.10+ gerekir (`python` bulunamazsa `python3` kullanın).
+Python 3.10 veya üstü gerekir (macOS ve Linux'ta `python` yoksa `python3`).
 
 ```sh
 git clone https://github.com/Kscl1/evren-bridge
@@ -29,25 +31,25 @@ cd evren-bridge
 python -m pip install -r requirements.txt
 ```
 
-`~/.evren/keys.txt` dosyasını (Windows: `%USERPROFILE%\.evren\keys.txt`) ve bulunduğu dizini oluşturun; dosyaya API anahtarınızı yazın:
+EVREN API anahtarını, önüne bir etiket koyarak `~/.evren/keys.txt` dosyasına yaz (Windows'ta `%USERPROFILE%\.evren\keys.txt`):
 
 ```text
 main=sk-...
 ```
 
+Köprüyü başlat ve açık bırak; panel aynı terminalde açılır:
+
 ```sh
 python evren_bridge.py
 ```
 
-Bu komut köprüyü EVREN için başlatır. Başka bir sağlayıcı için `--upstream URL` ekleyip `/v1` olmadan sağlayıcının kök URL'sini verin.
+Ajanında base URL'si `http://127.0.0.1:8787/v1` olan OpenAI uyumlu bir sağlayıcı ekle; API anahtarına ne yazdığın önemli değil, köprü gerçek anahtarını kendisi gönderir.
 
-Ajanınızın OpenAI uyumlu base URL ayarını `http://127.0.0.1:8787/v1`, API anahtarını `unused` yapın; köprü bunun yerine sizin anahtarınızı kullanır.
-
-Paneli API anahtarı olmadan deneyin: `python docs/demo.py`.
+Henüz anahtarın yok mu? `python docs/demo.py` paneli uydurma ajanlarla gösterir.
 
 ## İstemciler
 
-Her istemcide yukarıdaki base URL ile Chat Completions / OpenAI uyumlu sağlayıcıyı kullanın.
+OpenAI Chat Completions konuşan her ajan çalışır. Ajanın kendi anahtarında kalması için ayrıca bir oturum kimliği göndermesi gerekir. Bunlar gönderir:
 
 | İstemci | Oturumu aynı anahtarda tutmak için ayar |
 |---|---|
@@ -57,7 +59,7 @@ Her istemcide yukarıdaki base URL ile Chat Completions / OpenAI uyumlu sağlay�
 | <img src="https://github.com/charmbracelet.png?size=40" width="20" height="20" alt=""> [Crush](https://github.com/charmbracelet/crush) | Henüz test edilmedi |
 | <img src="https://github.com/aaif-goose.png?size=40" width="20" height="20" alt=""> [Goose](https://github.com/aaif-goose/goose) | Henüz test edilmedi |
 
-<img src="https://github.com/cline.png?size=40" width="20" height="20" alt=""> [Cline](https://github.com/cline/cline), <img src="https://github.com/RooCodeInc.png?size=40" width="20" height="20" alt=""> [Roo Code](https://github.com/RooCodeInc/Roo-Code), <img src="https://github.com/continuedev.png?size=40" width="20" height="20" alt=""> [Continue](https://github.com/continuedev/continue), <img src="https://github.com/Aider-AI.png?size=40" width="20" height="20" alt=""> [Aider](https://github.com/Aider-AI/aider), <img src="https://github.com/zed-industries.png?size=40" width="20" height="20" alt=""> [Zed](https://github.com/zed-industries/zed) ve <img src="https://github.com/QwenLM.png?size=40" width="20" height="20" alt=""> [Qwen Code](https://github.com/QwenLM/qwen-code) çalışır, ancak oturum kimliği göndermez; bu yüzden aynı anahtarda tutulmazlar.
+<img src="https://github.com/cline.png?size=40" width="20" height="20" alt=""> [Cline](https://github.com/cline/cline), <img src="https://github.com/RooCodeInc.png?size=40" width="20" height="20" alt=""> [Roo Code](https://github.com/RooCodeInc/Roo-Code), <img src="https://github.com/continuedev.png?size=40" width="20" height="20" alt=""> [Continue](https://github.com/continuedev/continue), <img src="https://github.com/Aider-AI.png?size=40" width="20" height="20" alt=""> [Aider](https://github.com/Aider-AI/aider), <img src="https://github.com/zed-industries.png?size=40" width="20" height="20" alt=""> [Zed](https://github.com/zed-industries/zed) ve <img src="https://github.com/QwenLM.png?size=40" width="20" height="20" alt=""> [Qwen Code](https://github.com/QwenLM/qwen-code) da çalışır, ama oturum kimliği göndermedikleri için tek bir anahtarda tutulmazlar.
 
 <details>
 <summary>Pi ayarları</summary>
@@ -85,7 +87,7 @@ pi --provider evren-bridge --model glm-5.3
 
 </details>
 
-Kendi istemcileriniz `X-Session-Affinity`, `X-Session-Id` veya `Agent-Session-Id` gönderebilir (ilk dolu başlık kullanılır). Codex CLI ve Claude Code başka API'ler kullanır ve desteklenmez.
+Başka istemciler `X-Session-Affinity`, `X-Session-Id` veya `Agent-Session-Id` başlığını gönderebilir. Codex CLI ve Claude Code başka API'ler konuşur, çalışmaz.
 
 ## Ayarlar
 
@@ -99,27 +101,26 @@ Kendi istemcileriniz `X-Session-Affinity`, `X-Session-Id` veya `Agent-Session-Id
 | `EVREN_KEYS_FILE` | `~/.evren/keys.txt` | Anahtar dosyası |
 | `EVREN_BRIDGE_PORT` | `8787` | Yerel port |
 
-`GET /bridge/quota` anahtar etiketlerini ve yönlendirme durumunu, profil sağlıyorsa kota verilerini de döndürür.
+`curl http://127.0.0.1:8787/bridge/quota` her anahtarın durumunu ve EVREN kotasını JSON olarak gösterir. Anahtarın kendisi hiçbir zaman görünmez.
 
 ## Nasıl çalışır
 
-- Bir oturum, isteği sürerken ve istediği aracı çalıştırırken (araç çağrısı başına en fazla 10 dakika) **aktif**, turu bitince **boştadır**.
-- Birden fazla anahtar için aynı sağlayıcının anahtarlarını alt alta `label=key` satırları olarak ekleyin. Yeni oturumlar, 20'den az aktif oturumu olan ilk kullanılabilir anahtara (`--active-cap`), yoksa en az aktif oturumu olan kullanılabilir anahtara gider. Boştaki oturumlar sayılmaz.
-- Oturumların anahtar atamaları son etkinliklerinden sonra 60 dakika bellekte tutulur. Geri dönen oturum, eşik dolu olsa bile kendi anahtarına döner; o anahtar kenara alınmışsa dönmez. Yük hiçbir oturumu başka anahtara taşımaz; eşik bir eşzamanlılık sınırı değildir.
-- Sağlayıcı profili yoksa upstream yanıt gövdeleri ve hata durum kodları değiştirilmeden iletilir.
+- Bir ajan yanıt beklerken ya da istediği aracı çalıştırırken (en fazla 10 dakika) **aktif**, turu bitince **boşta** sayılır.
+- Her ajan başladığı anahtarda kalır; böylece EVREN'in prompt cache'i konuşma boyunca korunur. Köprü bu anahtarı 60 dakika hatırlar; bu sürede geri dönen ajan aynı anahtara döner.
+- Yoğun bir anahtar hiçbir ajanı başka yere itmez: EVREN'in dakika limiti ajana kendi anahtarında ulaşır.
+- EVREN profili kapalıyken yanıtlar ve hatalar olduğu gibi geçer.
 
 ## EVREN profili
 
-Upstream'i değiştirmediğiniz sürece varsayılan olarak açıktır; açıkça etkinleştirmek için `--profile evren` kullanın.
+Varsayılan olarak açıktır. `--upstream` kullanırsan kapanır; açık kalsın istersen `--profile evren` de ekle.
 
-| Koşul | Davranış |
+| EVREN'den gelen | evren-bridge |
 |---|---|
-| Dakikalık limit (429) | Olduğu gibi iletir; yoksa `Retry-After: 60` ekler |
-| Günlük limit (429) | Anahtarı sıfırlanmaya kadar kenara alır; isteği başka bir kullanılabilir anahtarla tekrarlar |
-| Bütün anahtarlar kenara alınmış | 429 döndürür; `Retry-After` ilk sıfırlanmaya kalan süredir |
-| Akışın ilk veri parçasında gizlenmiş hata | İstemcinin yeniden denemesi için 503 döndürür |
+| Dakika limiti (429) | Olduğu gibi iletir; EVREN `Retry-After` göndermediyse 60 saniye ekler |
+| Günlük limit (429) | Anahtarı sıfırlanana kadar kenara alır |
+| Başarılı görünen bir akışın içine gizlenmiş hata | 503 döndürür, ajan yeniden dener |
 
-Profil, panele dakikalık, 5 dakikalık ve günlük kota ölçümlerini ekler.
+Profil açıkken panel EVREN'in kendi sayaçlarından okunan dakikalık, 5 dakikalık ve günlük kotayı da gösterir.
 
 ## Panel
 
@@ -146,14 +147,17 @@ Profil, panele dakikalık, 5 dakikalık ve günlük kota ölçümlerini ekler.
 
 ## Gizlilik
 
-Köprü yalnızca `127.0.0.1`'de dinler. Makinenizdeki her program köprüyü kullanabilir; bu yüzden güvendiğiniz bir makinede çalıştırın.
-`logs/bridge.log` istek üst verilerini, anahtar etiketlerini ve oturum kimliklerinin son sekiz karakterini kaydeder; API anahtarlarını, mesaj içeriğini veya araç argümanlarını asla kaydetmez. İstatistikler bu günlükten yüklenir; yeniden başlatıldığında oturumların anahtar atamaları kaybolur. Önbellek isabetleri sağlayıcıya bağlıdır.
+- Yalnızca `127.0.0.1` üzerinde dinler. Bilgisayarındaki her program köprüye, onun üzerinden de anahtarına ulaşabilir.
+- `logs/bridge.log` her istek için şunları tutar: zaman, anahtar etiketi, yol, model, durum, token sayıları, süreler ve oturum kimliğinin sonu. Anahtar, mesaj ve araç argümanı tutmaz.
+- Hangi ajanın hangi anahtarda olduğu yalnızca bellekte durur; yeniden başlatınca sıfırdan başlar.
 
 ## Geliştirme
 
 ```sh
 python -m unittest
 ```
+
+Testler yerel sahte sunucularla çalışır, ağa hiç çıkmaz.
 
 ## Lisans
 
