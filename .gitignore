@@ -1,0 +1,13 @@
+# secrets and local state never enter git
+.env
+*.token
+logs/
+__pycache__/
+.serena/
+
+# EVREN keys belong in ~/.evren/keys.txt; never in the repo
+keys.txt
+.env.*
+
+# local tooling
+.claude/
